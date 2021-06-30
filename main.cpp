@@ -4,6 +4,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include "time.h"
 #include "functions.h"
 
 using namespace std;
@@ -57,7 +58,12 @@ int main() {
     std::vector<int> col_ind;
     std::vector<int> row_ptr;
 
+
+    //start measure time
+    clock_t start = clock();
+
     sparse_matrix_representation(&edges, &A, &row_ptr, &col_ind, &tmp1,&tmp, n_nodes);
+
 
     std::vector<int> dangling = find_dangling_nodes(&col_ind, n_nodes);
 
@@ -68,6 +74,20 @@ int main() {
 */
 
     std::vector<double> P_final = compute_new_P(&dangling, &row_ptr, &col_ind, &A, n_nodes);
+    clock_t end = clock();
+    double time =((double)(end-start))/CLOCKS_PER_SEC;
+
+    //print steady state distribution
+    double s = 0;
+    for (int i = 0; i < P_final.size(); ++i) {
+        std::cout << "Probability node "<< i <<" = "<< P_final.at(i) << std::endl;
+        s +=  P_final.at(i);
+    }
+    std::cout<< "------------------------------------"<<std::endl;
+    std::cout << "Sum probabilities' = " <<s<< std::endl;
+
+    std::cout<< "---------------REPORT---------------"<<std::endl;
+    std::cout<<"Computation time:  "<<time<<std::endl;
 
     //print_o(O);
     //print_edges(edges);

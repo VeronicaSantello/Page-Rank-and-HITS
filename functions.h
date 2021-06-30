@@ -27,6 +27,7 @@ int max(int a, int b){
 }
 
 
+
 void sparse_matrix_representation(std::vector<std::pair<int,int>> *edges,
                                   std::vector<double> *A,
                                   std::vector<int> *row_ptr,
@@ -35,14 +36,24 @@ void sparse_matrix_representation(std::vector<std::pair<int,int>> *edges,
                                   std::vector<int> *tmp,
                                   int n_nodes){
 
+    std::vector<int> O_store(n_nodes,-1);
+
     for (int i = 0; i < edges->size(); i++) {
-        int O = std::count(tmp->begin(), tmp->end(), edges->at(i).first);
+        int O;
+        if (O_store.at(edges->at(i).first)!= -1)
+            O = O_store.at(edges->at(i).first);
+        else {
+            O = std::count(tmp->begin(), tmp->end(), edges->at(i).first);
+            O_store.at(edges->at(i).first) = O;
+        }
         A->push_back(1.0 / O);
         col_ind->push_back(edges->at(i).first);
     }
+    O_store.clear();
 
     int sum = 0;
     row_ptr->push_back(sum);
+
     for(int i = 0; i < n_nodes; i++){
         int freq = std::count(tmp1->begin(), tmp1->end(), i);
         sum += freq;
@@ -137,17 +148,6 @@ std::vector<double> compute_new_P(std::vector<int> *dangling,
 
         //std::cout<< "error: "<<error<<std::endl;
     }
-
-
-
-    //print steady state distribution
-    double s = 0;
-    for (int i = 0; i < P.size(); ++i) {
-        std::cout << "Probability node "<< i <<" = "<< P_next.at(i) << std::endl;
-        s +=  P_next.at(i);
-    }
-
-    std::cout << "SOMMA PROBABILITA' = " <<s<< std::endl;
 
     return P_next;
 }
