@@ -1,33 +1,20 @@
 #include <utility>
 
 
-bool sortbypair(const std::pair<int,int> &a, const std::pair<int,int> &b)
-{
+// comparator for pair of nodes that represent the edges
+bool sortbypair(const std::pair<int,int> &a, const std::pair<int,int> &b){
     return (a.second < b.second) || (a.second==b.second && a.first<b.first);
 }
 
+// function that prints all edges,useful for debug
 void print_edges(std::vector<std::pair<int, int>> v){
     for (int i = 0; i < v.size(); i++) {
-        std::cout<<"From node Id: "<<v.at(i).first<<" ";
-        std::cout<<"To node Id: "<<v.at(i).second<<std::endl;
+        std::cout << "From node Id: "<<v.at(i).first << " ";
+        std::cout << "To node Id: "<<v.at(i).second << std::endl;
     }
 }
 
-void print_o(std::vector<int> v){
-    for (int i = 0; i < v.size(); i++) {
-        std::cout<<v.at(i)<<std::endl;
-    }
-}
-
-
-int max(int a, int b){
-    if(a > b)
-        return a;
-    return b;
-}
-
-
-
+// function that computes the transposed matrix in a vector representation
 void sparse_matrix_representation(std::vector<std::pair<int,int>> *edges,
                                   std::vector<double> *A,
                                   std::vector<int> *row_ptr,
@@ -35,33 +22,26 @@ void sparse_matrix_representation(std::vector<std::pair<int,int>> *edges,
                                   std::vector<int> *tmp1,
                                   std::vector<int> *tmp,
                                   int n_nodes){
-
-    std::vector<int> O_store(n_nodes,-1);
-
+    // initialization of A and Col_ind vectors
     for (int i = 0; i < edges->size(); i++) {
-        int O;
-        if (O_store.at(edges->at(i).first)!= -1)
-            O = O_store.at(edges->at(i).first);
-        else {
-            O = std::count(tmp->begin(), tmp->end(), edges->at(i).first);
-            O_store.at(edges->at(i).first) = O;
-        }
+        int O = tmp->at(edges->at(i).first);
         A->push_back(1.0 / O);
         col_ind->push_back(edges->at(i).first);
     }
-    O_store.clear();
 
     int sum = 0;
     row_ptr->push_back(sum);
 
+    //initialization of row_ptr vector
     for(int i = 0; i < n_nodes; i++){
-        int freq = std::count(tmp1->begin(), tmp1->end(), i);
+        int freq = tmp1->at(i);
         sum += freq;
         row_ptr->push_back(sum);
     }
 
-
 /*
+ * print all initialized vectors, useful for debug
+ *
     for (int i = 0; i < edges->size(); i++) {
         std::cout<<A->at(i)<<" ";
     }
@@ -79,23 +59,18 @@ void sparse_matrix_representation(std::vector<std::pair<int,int>> *edges,
 */
 }
 
-
-// restituisce tutte le colonne nulle della matrice trasposta, che corrispondono
-// ai dangling nodes
-std::vector<int> find_dangling_nodes(std::vector<int> *col_ind, int n){
+// function that finds the dangling nodes, that are the zero columns into the transposed matrix
+std::vector<int> find_dangling_nodes(std::vector<int> *v, int n){
     std::vector<int> tmp;
     for (int i = 0; i < n; i++) {
-        if(std::find(col_ind->begin(), col_ind->end(), i) == col_ind->end())
+        if(v->at(i)==0)
             tmp.push_back(i);
     }
-
     return tmp;
 }
 
-
-
-double euclidean_distance(const std::vector<double> *a, const std::vector<double> *b)
-{
+// function that computes the euclidean distance between two vectors
+double euclidean_distance(const std::vector<double> *a, const std::vector<double> *b){
     double sum = 0;
     for (int i = 0; i < a->size(); i++) {
         sum += pow((a->at(i) - b->at(i)),2);
@@ -103,10 +78,8 @@ double euclidean_distance(const std::vector<double> *a, const std::vector<double
     return sqrt(sum);
 }
 
-
-
-
-std::vector<double> compute_new_P(std::vector<int> *dangling,
+// function that computes and returns the steady state probability distribution
+std::vector<double> compute_steady_state(std::vector<int> *dangling,
                                    std::vector<int> *row_ptr,
                                    std::vector<int> *col_ind,
                                    std::vector<double> *A,
@@ -119,11 +92,11 @@ std::vector<double> compute_new_P(std::vector<int> *dangling,
     //new probability vector K+1
     std::vector<double> P_next(n_nodes, p_initial);
 
-    double error = 100;
+    double euclid_distance = 1.0;
 
-    while(error > pow(10.0, -10)) {
+    while(euclid_distance > 0.001) {
 
-        //Compute the constant
+        //compute the constant of dangling nodes
         double summation = 0.0;
         for (int i = 0; i < dangling->size(); i++) {
             summation += P.at(dangling->at(i)) / n_nodes;
@@ -139,14 +112,13 @@ std::vector<double> compute_new_P(std::vector<int> *dangling,
             }
             sum += diff;
             P_next.at(i) = result + summation;
-
         }
 
-        error = euclidean_distance(&P, &P_next);
+        euclid_distance = euclidean_distance(&P, &P_next);
 
         P = P_next;
 
-        //std::cout<< "error: "<<error<<std::endl;
+        std::cout << "Euclid_distance: " << euclid_distance << std::endl;
     }
 
     return P_next;
@@ -156,9 +128,6 @@ std::vector<double> compute_new_P(std::vector<int> *dangling,
 
 
 
-#ifndef UNTITLED1_FUNCTIONS_H
-#define UNTITLED1_FUNCTIONS_H
 
-#endif //UNTITLED1_FUNCTIONS_H
 
 
