@@ -6,6 +6,10 @@ bool sortbypair(const std::pair<int,int> &a, const std::pair<int,int> &b){
     return (a.second < b.second) || (a.second==b.second && a.first<b.first);
 }
 
+bool sortbyfirst(const std::pair<int,int> &a, const std::pair<int,int> &b){
+    return (a.first < b.first) || (a.first==b.first && a.second<b.second);
+}
+
 // function that prints all edges,useful for debug
 void print_edges(std::vector<std::pair<int, int>> v){
     for (int i = 0; i < v.size(); i++) {
@@ -83,7 +87,7 @@ std::vector<double> compute_steady_state(std::vector<int> *dangling,
                                    std::vector<int> *row_ptr,
                                    std::vector<int> *col_ind,
                                    std::vector<double> *A,
-                                   int n_nodes){
+                                   int n_nodes, double damping){
 
     //initial probability P_0
     double p_initial = 1.0 / n_nodes;
@@ -111,7 +115,8 @@ std::vector<double> compute_steady_state(std::vector<int> *dangling,
                 result += A->at(j) * P.at(col_ind->at(j));
             }
             sum += diff;
-            P_next.at(i) = result + summation;
+            //P_next.at(i) = result + summation;
+            P_next.at(i) = (1 - damping) /n_nodes + damping*(result + summation);
         }
 
         euclid_distance = euclidean_distance(&P, &P_next);

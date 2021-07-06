@@ -22,7 +22,7 @@ int main() {
 
     // read the file txt
     std::ifstream infile;
-    infile.open("grafi/p2p-Gnutella31.txt");
+    infile.open("grafi/web.txt");
 
     std::cout<<"Start reading the file..."<<endl<<endl;
 
@@ -86,7 +86,8 @@ int main() {
     // computation of ID's of dangling nodes
     std::vector<int> dangling = find_dangling_nodes(&freq_out, n_nodes);
     // computation of the Steady State probability distribution
-    std::vector<double> P_final = compute_steady_state(&dangling, &row_ptr, &col_ind, &A, n_nodes);
+    double damping = 0.85;
+    std::vector<double> P_final = compute_steady_state(&dangling, &row_ptr, &col_ind, &A, n_nodes, damping);
 
     clock_t end = clock();  // stop measuring run time
 
