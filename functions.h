@@ -6,6 +6,10 @@ bool sortbypair(const std::pair<int,int> &a, const std::pair<int,int> &b){
     return (a.second < b.second) || (a.second==b.second && a.first<b.first);
 }
 
+bool sortbypair1(const std::pair<int,double> &a, const std::pair<int,double> &b){
+    return (a.second > b.second);
+}
+
 bool sortbyfirst(const std::pair<int,int> &a, const std::pair<int,int> &b){
     return (a.first < b.first) || (a.first==b.first && a.second<b.second);
 }
@@ -98,7 +102,7 @@ std::vector<double> compute_steady_state(std::vector<int> *dangling,
 
     double euclid_distance = 1.0;
 
-    while(euclid_distance > 0.001) {
+    while(euclid_distance > pow(10, -5)) {
 
         //compute the constant of dangling nodes
         double summation = 0.0;
@@ -123,7 +127,7 @@ std::vector<double> compute_steady_state(std::vector<int> *dangling,
 
         P = P_next;
 
-        std::cout << "Euclid_distance: " << euclid_distance << std::endl;
+        //std::cout << "Euclid_distance: " << euclid_distance << std::endl;
     }
 
     return P_next;

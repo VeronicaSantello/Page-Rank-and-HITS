@@ -113,7 +113,7 @@ int main() {
         sum_a = 0;
         sum_h = 0;
 
-        std::cout << "Euclid_distance: " << euclidean_dist_a<< " and "<<euclidean_dist_h << std::endl;
+        //std::cout << "Euclid_distance: " << euclidean_dist_a<< " and "<<euclidean_dist_h << std::endl;
     }
 
 
