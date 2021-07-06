@@ -72,7 +72,7 @@ int main() {
     freq_in.resize(n_nodes + 1, 0);
 
 
-    std::cout << "START COMPUTATION OF STEADY STATE DISTRIBUTION..." << endl;
+    std::cout << "START COMPUTATION..." << endl;
     std::vector<double> L; // vector of values of Adjacent matrix
     std::vector<double> Lt; // vector of values of Adjacent matrix transposed
     std::vector<int> col_ind; // vector of column indexes
@@ -84,29 +84,36 @@ int main() {
 
     clock_t start = clock(); // start measuring run time
 
-
     sort(edges.begin(), edges.end(), sortbyfirst); //sorting edges by the second element
 
-    sparse_matrix_representation1(&edges, &L, &row_ptr, &col_ind, &freq_in, &freq_out, n_nodes);
+    sparse_matrix_representation1(&edges, &L, &row_ptr, &col_ind, &freq_in, &freq_out, n_nodes, false);
     sort(edges.begin(), edges.end(), sortbypair); //sorting edges by the second element
+
     // computation of transposed matrix in a vector representation
-    sparse_matrix_representation1(&edges, &Lt, &row_ptr_t, &col_ind_t, &freq_in, &freq_out, n_nodes);
+    sparse_matrix_representation1(&edges, &Lt, &row_ptr_t, &col_ind_t, &freq_in, &freq_out, n_nodes, true);
 
     double euclidean_dist_a = 1.0;
     double euclidean_dist_h = 1.0;
-    double sum = 0;
+    double sum_a = 0;
+    double sum_h = 0;
 
-    while(euclidean_dist_a > 0.0001 && euclidean_dist_h > 0.0001){
-        std::vector<double> a_new = compute_hub_authority(&h, &row_ptr_t, &col_ind_t, &Lt, &sum);
-        std::vector<double> h_new = compute_hub_authority(&a, &row_ptr, &col_ind, &L, &sum);
-        normalize(&a_new, sum);
-        normalize(&h_new, sum);
+    while(euclidean_dist_a > pow(10, -5) && euclidean_dist_h > pow(10, -5)){
+        std::vector<double> a_new = compute_hub_authority(&h, &row_ptr_t, &col_ind_t, &Lt, &sum_a, n_nodes);
+        std::vector<double> h_new = compute_hub_authority(&a, &row_ptr, &col_ind, &L, &sum_h, n_nodes);
+
+        normalize(&a_new, sum_a);
+        normalize(&h_new, sum_h);
 
         euclidean_dist_a = euclidean_distance(&a, &a_new);
         euclidean_dist_h = euclidean_distance(&h, &h_new);
 
         a = a_new;
         h = h_new;
+
+        sum_a = 0;
+        sum_h = 0;
+
+        std::cout << "Euclid_distance: " << euclidean_dist_a<< " and "<<euclidean_dist_h << std::endl;
     }
 
 
@@ -120,13 +127,13 @@ int main() {
 
 
     for (int i = 0; i < a.size(); i++) {
-        std::cout<< a.at(i)<< std::endl;
+        //std::cout<< a.at(i)<< std::endl;
     }
-    std::cout<< std::endl;
+    //std::cout<< std::endl;
 
 
     for (int i = 0; i < h.size(); i++) {
-        std::cout<< h.at(i)<< std::endl;
+        //std::cout<< h.at(i)<< std::endl;
     }
 
 
