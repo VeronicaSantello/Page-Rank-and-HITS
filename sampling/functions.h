@@ -1,4 +1,5 @@
 #include <utility>
+#include <cmath>
 
 
 // comparator for pair of nodes that represent the edges
@@ -87,7 +88,7 @@ double euclidean_distance(const std::vector<double> *a, const std::vector<double
 }
 
 // function that computes and returns the steady state probability distribution
-std::vector<double> compute_steady_state(std::vector<int> *dangling,
+std::pair<std::vector<double>,int> compute_steady_state(std::vector<int> *dangling,
                                    std::vector<int> *row_ptr,
                                    std::vector<int> *col_ind,
                                    std::vector<double> *A,
@@ -102,8 +103,10 @@ std::vector<double> compute_steady_state(std::vector<int> *dangling,
 
     double euclid_distance = 1.0;
 
-    while(euclid_distance > pow(10, -5)) {
+    int pr_iterations = 0;
+    while(euclid_distance > pow(10, -6)) {
 
+        pr_iterations++;
         //compute the constant of dangling nodes
         double summation = 0.0;
         for (int i = 0; i < dangling->size(); i++) {
@@ -130,7 +133,7 @@ std::vector<double> compute_steady_state(std::vector<int> *dangling,
         //std::cout << "Euclid_distance: " << euclid_distance << std::endl;
     }
 
-    return P_next;
+    return std::make_pair(P_next,pr_iterations);
 }
 
 
