@@ -69,18 +69,19 @@ int main() {
     FILE *Fp_out;
     //int l = 1;
     Fp_out = fopen("orlando1.csv", "w");
-    fprintf(Fp_out, "Fratto,NNodi,Narchi,TipoAnalisi,Tempo,d,k,J12,J13,J23,Iterations\n"); //intestazione
+    fprintf(Fp_out, "NNodi,Narchi,TipoAnalisi,Tempo,d,k,J12,J13,J23,Iterations\n"); //intestazione
     double time_p, time_h, time_d, jaccard1, jaccard2, jaccard3;
     //SAMPLING
     int pr_iterations, h_iterations ;
     double k[] = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30};
     double d, x;
-    for (double  l = 1.0; l<=4.0; l+=0.3 ) { //double  l = 1.0; l<3.0; l+=0.5 
-        std::cout<<"l equal to: "<<l<< std::endl;
 
+    int step = n_nodes / 50;
+    for (int  n=n_nodes; n>0; n-=step ) {  
+        std::cout<<"n equal to: "<<n<< std::endl;
         std::vector<int> bitmap(n_nodes, 0);
         
-        n = n_nodes / l;
+       
         //std:cout<<n<<endl;
 
         srand(time(NULL));
@@ -290,9 +291,9 @@ int main() {
                         (double) aut_in.size() / ((double) l2.size() + (double) l3.size() - (double) aut_in.size());
 
                 //std::cout << "Jaccard1: " << jaccard1 << " Jaccard2: " << jaccard2 << " Jaccard3: " << jaccard3 << std::endl;
-                fprintf(Fp_out, "%f, %d, %d, %d, %f, %f, %f, %f, %f, %f, %d\n", l, n, edges.size(), 1, time_p, d, x, jaccard1, jaccard2, jaccard3, pr_iterations);
-                fprintf(Fp_out, "%f, %d, %d, %d, %f, %f, %f, %f, %f, %f, %d\n", l, n, edges.size(), 2, time_h, d, x, jaccard1, jaccard2, jaccard3, h_iterations);
-                fprintf(Fp_out, "%f, %d, %d, %d, %f, %f, %f, %f, %f, %f, %d\n", l, n, edges.size(), 3, time_d, d, x, jaccard1, jaccard2, jaccard3, n);
+                fprintf(Fp_out, "%d, %d, %d, %f, %f, %f, %f, %f, %f, %d\n", n, edges.size(), 1, time_p, d, x, jaccard1, jaccard2, jaccard3, pr_iterations);
+                fprintf(Fp_out, "%d, %d, %d, %f, %f, %f, %f, %f, %f, %d\n", n, edges.size(), 2, time_h, d, x, jaccard1, jaccard2, jaccard3, h_iterations);
+                fprintf(Fp_out, "%d, %d, %d, %f, %f, %f, %f, %f, %f, %d\n", n, edges.size(), 3, time_d, d, x, jaccard1, jaccard2, jaccard3, n);
             }
         }
 
@@ -301,5 +302,3 @@ int main() {
     fclose(Fp_out);
     return 0;
 }
-
-
