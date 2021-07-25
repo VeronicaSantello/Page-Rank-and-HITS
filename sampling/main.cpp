@@ -25,13 +25,13 @@ using namespace std;
 
 
 int main() {
-	
+
     // vector to represent edges
     std::vector<pair<int, int>> edges;
 
     // read the file txt
     std::ifstream infile;
-    infile.open("C:/Users/bigia/OneDrive - CGIL Veneto/Personale/sampling/sampling/cmake-build-debug/grafi/p2p-Gnutella31.txt");
+    infile.open("grafi/roadnet-tx.txt");
 
     std::cout<<"Start reading the file..."<<endl<<endl;
 
@@ -43,7 +43,7 @@ int main() {
     // if the file is open, push the Ids into the vectors in pairs
     int n;
     int n_nodes=0;
-    
+
     while (infile >> n) {
         pair<int, int> p;
         p.first = n;
@@ -76,22 +76,23 @@ int main() {
     double k[] = {0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30};
     double d, x;
 
+    std::vector<pair<int, int>> edges1 = edges;
     int step = n_nodes / 50;
-    for (int  n=n_nodes; n>0; n-=step ) {  
+    for (int  n=n_nodes; n>0; n-=step ) {
         std::cout<<"n equal to: "<<n<< std::endl;
         std::vector<int> bitmap(n_nodes, 0);
-        
-       
+        edges = edges1;
+
         //std:cout<<n<<endl;
 
         srand(time(NULL));
 
         std::vector<int> v(n_nodes) ; // vector with n_nodes ints.
         std::iota(std::begin(v), std::end(v), 0); // Fill with 0, 1, ..., n_nodes-1.
-        
+
         auto rng = std::default_random_engine {};
         std::shuffle(std::begin(v), std::end(v), rng);
-        
+
 
         int i=0;
         while (i < n) {
@@ -111,7 +112,7 @@ int main() {
 
 
         sort(edges.begin(), edges.end(), sortbypair); //sorting edges by the second element
-          
+
         std::vector<int> freq_out(n, 0);  // stores the number of out-links for each node
         std::vector<int> freq_in(n, 0);   // stores the number of in-links for each node
         edges = remove_edges(&edges, &bitmap); // remove edges that contains not extracted nodes
@@ -123,7 +124,7 @@ int main() {
             corr[nodes.at(i)]=i;
             corrispondenze.push_back(std::pair<int, int>(nodes.at(i), i));
         }
-        
+
 
         for (int i = 0; i < edges.size(); i++) {
             edges.at(i).first = corr[edges.at(i).first];
@@ -146,7 +147,7 @@ int main() {
 
                 //std::cout << "START COMPUTATION OF PAGE RANK..." << endl;
                 sort(edges.begin(), edges.end(), sortbypair); //sorting edges by the second element
-                
+
                 std::vector<double> A; // vector of values of Adjacent matrix
                 std::vector<int> col_ind; // vector of column indexes
                 std::vector<int> row_ptr; // vector of row pointers
@@ -159,13 +160,13 @@ int main() {
                 std::vector<int> dangling = find_dangling_nodes(&freq_out, n);
                 // computation of the Steady State probability distribution
                 double damping = d;
-               
+
                 pair<std::vector<double>, int> p = compute_steady_state(&dangling, &row_ptr, &col_ind, &A, n, damping);
                 std::vector<double> P_final = p.first;
                 pr_iterations = p.second;
 
                 clock_t end = clock();  // stop measuring run time
-                
+
                 // print steady state distribution
                 double s = 0;
                 std::vector <std::pair<int, double>> page_rank(n);
@@ -208,26 +209,29 @@ int main() {
                 double euclidean_dist_h = 1.0;
                 double sum_a = 0;
                 double sum_h = 0;
+                int max_iterations = 50;
 
 
-                while (euclidean_dist_a > pow(10, -6) && euclidean_dist_h > pow(10, -6)) {
+                while (euclidean_dist_a > pow(10, -4) && euclidean_dist_h > pow(10, -4) && max_iterations>0) {
                     h_iterations ++;
                     std::vector<double> a_new = compute_hub_authority(&h, &row_ptr_t, &col_ind_t, &Lt, &sum_a, n);
                     std::vector<double> h_new = compute_hub_authority(&a, &row_ptr, &col_ind, &L, &sum_h, n);
                     normalize(&a_new, sum_a);
                     normalize(&h_new, sum_h);
-                    
+
                     euclidean_dist_a = euclidean_distance(&a, &a_new);
                     euclidean_dist_h = euclidean_distance(&h, &h_new);
-                  
+
                     a = a_new;
                     h = h_new;
 
                     sum_a = 0;
                     sum_h = 0;
-                    
 
-                   //std::cout << "Euclid_distance: " << euclidean_dist_a<< " and "<<euclidean_dist_h << std::endl;
+                    max_iterations--;
+
+
+                    std::cout << "Euclid_distance: " << euclidean_dist_a<< " and "<<euclidean_dist_h << std::endl;
                 }
 
 
@@ -242,7 +246,7 @@ int main() {
                     //std::cout << "Probability node "<< i <<" = "<< a.at(i) << std::endl;
                     authority.at(i) = std::pair<int, double>(i, a.at(i));
                 }
-                
+
                 sort(authority.begin(), authority.end(), sortbypair1);
 
 
